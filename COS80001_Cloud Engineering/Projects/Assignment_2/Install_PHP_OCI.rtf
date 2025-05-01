@@ -1,0 +1,41 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww17660\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs18 \cf0 #### Copy and Paste all contents of this file into Oracle-init script when creating Webserver instance\
+
+\fs14 \
+#!/bin/bash\
+\
+###update yum\
+yum update -y\
+\
+###Install PHP\
+sudo dnf module install php:7.2 -y\
+sudo dnf install php-zip php-mysqlnd -y\
+service httpd start\
+sudo yum install -y httpd mariadb-server php-mbstring php-xml\
+systemctl enable httpd\
+systemctl start httpd\
+sudo usermod -a -G apache opc\
+sudo chown -R opc:apache /var/www\
+sudo chmod 2775 /var/www\
+find /var/www -type d -exec sudo chmod 2775 \{\} \\;\
+find /var/www -type f -exec sudo chmod 0664 \{\} \\;\
+echo "<?php echo '<h2>Welcome to COS80001. Installed PHP version: ' . phpversion() . '</h2>'; ?>" > /var/www/html/phpinfo.php\
+\
+### Install MySQL Shell\
+sudo dnf install mysql-shell -y\
+\
+###disable linux firewall permanently\
+sudo systemctl stop firewalld\
+sudo systemctl disable firewalld\
+sudo systemctl mask firewalld\
+\
+### disable se linux permanently\
+sudo sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config\
+sudo setenforce 0\
+}
