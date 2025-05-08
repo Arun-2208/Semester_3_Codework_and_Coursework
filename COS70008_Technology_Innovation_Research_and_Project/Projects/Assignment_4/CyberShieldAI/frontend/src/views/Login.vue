@@ -27,7 +27,7 @@
               v-model="email"
               type="email"
               placeholder="Enter email"
-              class="w-full h-10 px-4 mt-2 bg-[#F9F9F9] rounded-full border border-gray-300 focus:outline-none font-['Calibri']"
+              class="w-full h-10 px-4 mt-2 bg-[#F9F9F9] text-[#4F378A] rounded-full border border-gray-300 focus:outline-none font-['Calibri']"
             />
           </div>
   
@@ -38,7 +38,7 @@
               v-model="password"
               type="password"
               placeholder="Enter password"
-              class="w-full h-10 px-4 mt-2 bg-[#F9F9F9] rounded-full border border-gray-300 focus:outline-none font-['Calibri']"
+              class="w-full h-10 px-4 mt-2 bg-[#F9F9F9] text-[#4F378A] rounded-full border border-gray-300 focus:outline-none font-['Calibri']"
             />
           </div>
   
@@ -69,30 +69,31 @@
   </template>
   
   <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'LoginPage',
-    data() {
-      return {
-        email: '',
-        password: '',
-      };
-    },
-    methods: {
-      async login() {
-        try {
-          const res = await axios.post('http://localhost:5000/login', {
-            email: this.email,
-            password: this.password,
-          });
-          localStorage.setItem('user', JSON.stringify(res.data));
-          this.$router.push('/dashboard/scan');
-        } catch (err) {
-          alert('Invalid credentials or server error.');
-        }
-      },
-    },
-  };
-  </script>
+import axios from 'axios';
+
+export default {
+  name: 'LoginPage',
+  data() {
+    return {
+      email: '',
+      password: ''
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const res = await axios.post('http://localhost:5000/login', {
+          email: this.email,
+          password: this.password
+        });
+
+        sessionStorage.setItem('user', JSON.stringify(res.data));
+        this.$router.push('/dashboard/scan');
+      } catch (err) {
+        alert('Login failed. Please check your credentials.');
+      }
+    }
+  }
+};
+</script>
   

@@ -44,12 +44,12 @@ def predict_malware(sample_features: dict, historical_errors=None):
     # Preprocessing
     # Arrange sample in feature order expected by scaler_rf1
     feature_order = scaler_rf1.feature_names_in_
-    sample_list_full = [sample_features[feat] for feat in feature_order]
+    sample_list_full = [sample_features.get(feat, 0.0) for feat in feature_order]
     X_full = np.array(sample_list_full).reshape(1, -1)
     X_full_scaled = scaler_rf1.transform(X_full)
 
     # Prepare AE input (7 features)
-    sample_list_ae = [sample_features[feat] for feat in ae_features]
+    sample_list_ae = [sample_features.get(feat, 0.0) for feat in ae_features]
     X_ae = np.array(sample_list_ae).reshape(1, -1)
     X_ae_scaled = scaler_ae.transform(X_ae)
 
@@ -75,7 +75,7 @@ def predict_malware(sample_features: dict, historical_errors=None):
         prediction_accuracy_score = round(confidence_rf1, 2)
 
     # Risk Score Calculation
-    if historical_errors and len(historical_errors) > 0:
+    if historical_errors and historical_errors > 0:
         historical_avg_error = np.mean(historical_errors)
     else:
         historical_avg_error = 0.02  # Assume low default historical error if not available

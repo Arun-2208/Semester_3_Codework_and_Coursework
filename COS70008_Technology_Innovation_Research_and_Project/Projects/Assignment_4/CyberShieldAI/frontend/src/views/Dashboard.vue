@@ -1,21 +1,22 @@
 
 <template>
-  <div class="flex">
-    <Sidebar :isAdmin="user.user_type==='admin'" />
+ <div class="w-[90%] max-w-[1440px] h-[90%] flex justify-between items-center relative font-['Calibri']">
+<div class = "flex">
     <div class="flex-1">
       <NavBar :username="user.username" @logout="logout" />
       <router-view />
     </div>
-  </div>
+    </div>
+</div>
 </template>
 <script>
 import NavBar from '../components/NavBar.vue';
-import Sidebar from '../components/Sidebar.vue';
+
 export default {
   name: 'Dashboard',
-  components: { NavBar, Sidebar },
+  components: { NavBar},
   computed: {
-    user() { return JSON.parse(localStorage.getItem('user')); }
+    user() { return JSON.parse(sessionStorage.getItem('user')); }
   },
   methods: {
     logout() {

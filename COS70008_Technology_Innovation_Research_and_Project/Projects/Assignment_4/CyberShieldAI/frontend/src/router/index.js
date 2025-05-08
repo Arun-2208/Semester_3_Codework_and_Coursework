@@ -9,6 +9,7 @@ import ScanFile from '../views/ScanFile.vue';
 import ScanHistory from '../views/ScanHistory.vue';
 import UpdateModel from '../views/UpdateModel.vue';
 import Analytics from '../views/Analytics.vue';
+import Profile from '../views/Profile.vue';
 
 const routes = [
   { path: '/', component: LandingPage },
@@ -21,7 +22,8 @@ const routes = [
       { path: 'scan', component: ScanFile },
       { path: 'history', component: ScanHistory },
       { path: 'update-model', component: UpdateModel },
-      { path: 'analytics', component: Analytics }
+      { path: 'analytics', component: Analytics },
+      { path: 'profile', component: Profile }
     ]
   }
 ];

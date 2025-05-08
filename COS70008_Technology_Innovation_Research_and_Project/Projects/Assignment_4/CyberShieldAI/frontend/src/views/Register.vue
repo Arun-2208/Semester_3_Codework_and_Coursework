@@ -108,7 +108,7 @@ export default {
           password: this.password,
           user_type: this.isAdmin ? 'admin' : 'regular',
         });
-        localStorage.setItem('user', JSON.stringify(res.data));
+        sessionStorage.setItem('user', JSON.stringify(res.data));
         this.$router.push('/dashboard/scan');
       } catch (err) {
         alert('Registration failed. Please try again.');
