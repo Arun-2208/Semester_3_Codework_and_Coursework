@@ -32,10 +32,15 @@ def predict_and_store():
 
     # Historical error aggregation
     try:
-        historical_errors = sum([
-            float(getattr(latest_scan, f"risk_{i}", 0)) if getattr(latest_scan, f"risk_{i}", "--") not in ["--", None] else 0
-            for i in range(1, 4)
-        ]) if latest_scan else 0.0
+        if latest_scan:
+            risks = []
+            for i in range(1, 4):
+                val = getattr(latest_scan, f"risk_{i}", "--")
+                if val not in ["--", None]:
+                    risks.append(float(val))
+            historical_errors = sum(risks) / len(risks) if risks else 0.0
+        else:
+            historical_errors = 0.0
     except:
         historical_errors = 0.0
 
