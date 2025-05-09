@@ -1,12 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
+from flask_cors import CORS
 from sqlalchemy.orm import Session
 from database import SessionLocal, User, ScanHistory
 from predict_pipeline import predict_multiple_malwares
 import datetime
-from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"], supports_credentials=True)
+# Define blueprint
+predict_bp = Blueprint('predict_bp', __name__)
+CORS(predict_bp, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"], supports_credentials=True)
 
 # Dependency to get DB session
 def get_db():
@@ -16,7 +17,7 @@ def get_db():
     finally:
         db.close()
 
-@app.route("/predict", methods=["POST"])
+@predict_bp.route("/predict", methods=["POST"])
 def predict_and_store():
     data = request.get_json()
     samples = data.get("samples")
@@ -30,7 +31,6 @@ def predict_and_store():
     db: Session = next(get_db())
     latest_scan = db.query(ScanHistory).filter_by(user_id=user_id).order_by(ScanHistory.scan_id.desc()).first()
 
-    # Historical error aggregation
     try:
         if latest_scan:
             risks = []
@@ -46,22 +46,11 @@ def predict_and_store():
 
     predictions = predict_multiple_malwares(samples, historical_errors)
 
-    # Initialize fields for DB (max 3 samples)
-    fields = {
-        f"result_{i+1}": "--" for i in range(3)
-    }
-    fields.update({
-        f"malware_type_{i+1}": "--" for i in range(3)
-    })
-    fields.update({
-        f"anomaly_score_{i+1}": "--" for i in range(3)
-    })
-    fields.update({
-        f"accuracy_{i+1}": "--" for i in range(3)
-    })
-    fields.update({
-        f"risk_{i+1}": "--" for i in range(3)
-    })
+    fields = {f"result_{i+1}": "--" for i in range(3)}
+    fields.update({f"malware_type_{i+1}": "--" for i in range(3)})
+    fields.update({f"anomaly_score_{i+1}": "--" for i in range(3)})
+    fields.update({f"accuracy_{i+1}": "--" for i in range(3)})
+    fields.update({f"risk_{i+1}": "--" for i in range(3)})
 
     total_risk = 0.0
     risk_count = 0
@@ -94,6 +83,3 @@ def predict_and_store():
         "prediction_timestamp": new_scan.scan_timestamp.isoformat(),
         "predictions": predictions
     })
-
-if __name__ == "__main__":
-    app.run(debug=True)

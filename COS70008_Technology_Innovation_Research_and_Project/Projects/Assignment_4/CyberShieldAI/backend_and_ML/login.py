@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from database import SessionLocal, User
 
-app = Flask(__name__)
-# Explicit CORS setup for frontend on localhost:5173
-CORS(app, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
+# Define blueprint
+login_bp = Blueprint('login_bp', __name__)
+CORS(login_bp, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
-@app.route('/login', methods=['POST'])
+@login_bp.route('/login', methods=['POST'])
 def login():
     db = SessionLocal()
     data = request.get_json()
@@ -14,16 +14,13 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    # Input validation
     if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400
 
     try:
-        # Find the user by email
         user = db.query(User).filter(User.email == email).first()
 
         if user and user.password == password:
-            # Successful login
             return jsonify({
                 'message': 'Login successful',
                 'user_id': user.user_id,
@@ -40,7 +37,3 @@ def login():
 
     finally:
         db.close()
-
-
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)

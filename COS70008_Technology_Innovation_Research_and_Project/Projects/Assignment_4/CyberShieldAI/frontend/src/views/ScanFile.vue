@@ -67,13 +67,28 @@
             </p>
           </div>
 
-          <!-- Pie Chart -->
-          <div class="mt-6 flex justify-center">
-            <PieChartComponent
-              :risk="res.prediction.future_risk_rating * 100"
-              :result="res.prediction.result"
-            />
-          </div>
+         <!-- Pie Charts -->
+<div class="mt-6 flex flex-col md:flex-row justify-center gap-8">
+  <!-- Detection Accuracy Pie -->
+  <div class="w-60">
+    <PieChartComponent
+      :risk="res.prediction.prediction_accuracy * 100"
+      :result="res.prediction.result"
+      :label="'Detection Accuracy'"
+      :malwareType="res.prediction.malware_type"
+    />
+  </div>
+
+  <!-- Future Risk Pie - only for malware -->
+  <div v-if="res.prediction.result === 'malware'" class="w-60">
+    <PieChartComponent
+      :risk="res.prediction.future_risk_rating * 100"
+      :result="res.prediction.result"
+      :label="'Future Risk'"
+      :malwareType="res.prediction.malware_type"
+    />
+  </div>
+</div>
         </div>
       </div>
     </div>

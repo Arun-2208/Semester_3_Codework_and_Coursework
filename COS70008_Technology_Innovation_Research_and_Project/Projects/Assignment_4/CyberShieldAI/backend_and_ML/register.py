@@ -1,13 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from database import SessionLocal, User
 
-app = Flask(__name__)
+# Define blueprint
+register_bp = Blueprint('register_bp', __name__)
+CORS(register_bp, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
 
-# Explicit CORS setup for frontend on localhost:5173
-CORS(app, origins=["http://localhost:5173"], methods=["POST", "GET", "OPTIONS"], allow_headers=["Content-Type"])
-
-@app.route('/register', methods=['POST'])
+@register_bp.route('/register', methods=['POST'])
 def register():
     db = SessionLocal()
     data = request.get_json()
@@ -29,8 +28,16 @@ def register():
         db.add(new_user)
         db.commit()
 
-        return jsonify({'message': 'User registered successfully'}), 201
+        created_user = db.query(User).filter_by(email=email).first()
 
+        return jsonify({
+            'message': 'Registration successful',
+            'user_id': created_user.user_id,
+            'username': created_user.username,
+            'email': created_user.email,
+            'user_type': created_user.user_type
+        }), 201
+    
     except Exception as e:
         db.rollback()
         print("Error during registration:", str(e))
@@ -38,8 +45,3 @@ def register():
 
     finally:
         db.close()
-
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)
-
-    

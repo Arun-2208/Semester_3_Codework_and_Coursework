@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-64 flex justify-center items-center">
+  <div class="w-full h-64">
     <canvas ref="pieChart"></canvas>
   </div>
 </template>
@@ -18,44 +18,50 @@ export default {
     result: {
       type: String,
       required: true
+    },
+    label: {
+      type: String,
+      required: true
+    },
+    malwareType: {
+      type: String,
+      default: 'benign'
     }
   },
   mounted() {
     const ctx = this.$refs.pieChart.getContext('2d');
-    const isMalware = this.result === 'malware';
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, isMalware ? '#dc2626' : '#059669'); // red or green
-    gradient.addColorStop(1, isMalware ? '#f87171' : '#34d399'); // lighter red or green
+    const type = this.malwareType.toLowerCase();
+    let color = '#10b981'; // green default
+
+    if (this.result === 'malware') {
+      if (type.includes('ransom')) color = '#ef4444'; // red
+      else if (type.includes('spy')) color = '#ec4899'; // pink
+      else if (type.includes('trojan')) color = '#f97316'; // orange
+      else color = '#7c3aed'; // fallback purple
+    }
 
     new Chart(ctx, {
-      type: 'doughnut',
+      type: 'pie',
       data: {
-        labels: [isMalware ? 'Threat Detected' : 'Benign File', 'Remaining'],
-        datasets: [{
-          data: [this.risk, 100 - this.risk],
-          backgroundColor: [gradient, '#e5e7eb'],
-          borderWidth: 2,
-          borderRadius: 5,
-        }]
+        labels: [this.label, 'Remaining'],
+        datasets: [
+          {
+            data: [this.risk, 100 - this.risk],
+            backgroundColor: [color, '#f3f4f6'],
+            borderWidth: 1
+          }
+        ]
       },
       options: {
-        cutout: '70%',
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false }
-        },
         responsive: true,
-        maintainAspectRatio: false
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
       }
     });
   }
 };
 </script>
-
-<style scoped>
-canvas {
-  max-width: 100%;
-  max-height: 100%;
-}
-</style>
