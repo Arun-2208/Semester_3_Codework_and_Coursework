@@ -20,28 +20,30 @@ def get_admin_analytics():
 
         for scan in scans:
             ts = scan.scan_timestamp
-            day = ts.strftime("%Y-%m-%d")
-            week = ts.strftime("%Y-W%U")
-            month = ts.strftime("%Y-%m")
 
-            daily_counts[day] += 1
-            weekly_counts[week] += 1
-            monthly_counts[month] += 1
+            # Extract local date parts
+            date_str = ts.date().isoformat()  # e.g., "2025-05-15"
+            year, week_num, _ = ts.isocalendar()
+            week_key = f"{year}-W{week_num:02d}"
+            month_str = ts.strftime("%Y-%m")
 
-            for i in range(1, 3 + 1):
+            # Group counts
+            daily_counts[date_str] += 1
+            weekly_counts[week_key] += 1
+            monthly_counts[month_str] += 1
+
+            for i in range(1, 4):
                 result = getattr(scan, f"result_{i}")
                 mtype = getattr(scan, f"malware_type_{i}")
                 acc = getattr(scan, f"accuracy_{i}")
 
                 label = mtype if (mtype and mtype.lower() != 'n/a') else 'Benign'
 
-                # Malware distribution
                 if result and result.lower() == "malware" and label.lower() != "benign":
                     malware_counter[label] += 1
                 elif result and result.lower() == "benign":
                     malware_counter['Benign'] += 1
 
-                # Accuracy stats (for all types including Benign)
                 try:
                     acc_val = float(acc)
                     if 0 <= acc_val <= 1:

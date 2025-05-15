@@ -6,16 +6,16 @@
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
         <div class="bg-[#F6F2FF] rounded-xl shadow p-6 text-center">
-          <h2 class="text-[#4F378A] font-medium text-lg mb-2">Scans This Month</h2>
-          <p class="text-2xl font-bold text-gray-700">{{ monthlyCount }}</p>
+          <h2 class="text-[#4F378A] font-medium text-lg mb-2">Scans Today</h2>
+          <p class="text-2xl font-bold text-gray-700">{{ dailyCount }}</p>
         </div>
         <div class="bg-[#F6F2FF] rounded-xl shadow p-6 text-center">
           <h2 class="text-[#4F378A] font-medium text-lg mb-2">Scans This Week</h2>
           <p class="text-2xl font-bold text-gray-700">{{ weeklyCount }}</p>
         </div>
         <div class="bg-[#F6F2FF] rounded-xl shadow p-6 text-center">
-          <h2 class="text-[#4F378A] font-medium text-lg mb-2">Scans Today</h2>
-          <p class="text-2xl font-bold text-gray-700">{{ dailyCount }}</p>
+          <h2 class="text-[#4F378A] font-medium text-lg mb-2">Scans This Month</h2>
+          <p class="text-2xl font-bold text-gray-700">{{ monthlyCount }}</p>
         </div>
       </div>
 
@@ -42,9 +42,9 @@ export default {
   name: 'Analytics',
   data() {
     return {
-      monthlyCount: 0,
-      weeklyCount: 0,
       dailyCount: 0,
+      weeklyCount: 0,
+      monthlyCount: 0,
       detectionRates: {},
       malwareDistribution: {}
     };
@@ -54,9 +54,19 @@ export default {
       const res = await fetch('http://localhost:5000/admin-analytics');
       const data = await res.json();
 
-      this.monthlyCount = Object.values(data.monthly_counts)[0] || 0;
-      this.weeklyCount = Object.values(data.weekly_counts)[0] || 0;
-      this.dailyCount = Object.values(data.daily_counts)[0] || 0;
+      // Get today, current ISO week, and current month
+      const now = new Date();
+      const todayKey = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+      const weekNumber = getISOWeekNumber(now);
+      const year = now.getUTCFullYear();
+      const weekKey = `${year}-W${String(weekNumber).padStart(2, '0')}`;
+
+      const monthKey = now.toISOString().slice(0, 7); // YYYY-MM
+
+      this.dailyCount = data.daily_counts?.[todayKey] || 0;
+      this.weeklyCount = data.weekly_counts?.[weekKey] || 0;
+      this.monthlyCount = data.monthly_counts?.[monthKey] || 0;
 
       this.detectionRates = data.average_detection_rate_by_type || {};
       this.malwareDistribution = data.malware_distribution || {};
@@ -74,7 +84,7 @@ export default {
       if (key.includes('trojan')) return '#f97316'; // orange
       if (key.includes('spy')) return '#ec4899';    // pink
       if (key.includes('benign')) return '#10b981'; // green
-      return '#7c3aed';                             // fallback purple
+      return '#7c3aed';                             // fallback
     },
     renderBarChart() {
       const ctx = document.getElementById('barChart').getContext('2d');
@@ -133,6 +143,15 @@ export default {
     }
   }
 };
+
+// ISO week number helper
+function getISOWeekNumber(date) {
+  const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = tempDate.getUTCDay() || 7;
+  tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+  return Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
+}
 </script>
 
 <style scoped>
