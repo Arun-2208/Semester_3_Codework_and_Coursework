@@ -15,15 +15,15 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="flex flex-col">
           <label class="text-sm text-gray-600 mb-1">Epochs</label>
-          <input type="number" v-model="epochs" class="px-3 text-[#4F378A] bg-white py-2 border rounded-md text-[#4F378A]" />
+          <input type="number" v-model="epochs" class="px-3 text-[#4F378A] bg-white py-2 border rounded-full text-[#4F378A]" />
         </div>
         <div class="flex flex-col">
           <label class="text-sm text-gray-600 mb-1">Batch Size</label>
-          <input type="number" v-model="batch_size" class="px-3 text-[#4F378A] bg-white  py-2 border rounded-md text-[#4F378A]" />
+          <input type="number" v-model="batch_size" class="px-3 text-[#4F378A] bg-white  py-2 border rounded-full text-[#4F378A]" />
         </div>
         <div class="flex flex-col">
           <label class="text-sm text-gray-600 mb-1">Learning Rate</label>
-          <input type="number" step="0.0001" v-model="learning_rate" class="px-3 text-[#4F378A] bg-white  py-2 border rounded-md text-[#4F378A]" />
+          <input type="number" step="0.0001" v-model="learning_rate" class="px-3 text-[#4F378A] bg-white  py-2 border rounded-full text-[#4F378A]" />
         </div>
       </div>
 
@@ -31,7 +31,7 @@
       <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
         <button
           @click="downloadDataset"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium"
         >
           Download Dataset
         </button>
@@ -45,7 +45,7 @@
   />
   <label
     for="upload-dataset"
-    class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md font-medium inline-block"
+    class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-medium inline-block"
   >
     Upload Updated Dataset
   </label>
@@ -62,10 +62,10 @@
 
       <!-- Action Buttons -->
       <div class="flex flex-col md:flex-row gap-4 justify-center mb-6">
-        <button
+        <button 
           :disabled="loading"
           @click="retrainModel"
-          class="bg-[#4F378A] hover:bg-[#3e2c6a] text-white px-6 py-2 rounded-md font-medium"
+          class="bg-[#4F378A] hover:bg-[#3e2c6a] text-white px-6 py-2 rounded-full font-medium"
         >
           Retrain Model
         </button>
@@ -80,7 +80,12 @@
         </div>
         <div class="bg-white border rounded-lg p-4 shadow-inner">
           <h3 class="text-[#4F378A] font-medium mb-2">Logs</h3>
-          <pre class="text-xs text-gray-700 whitespace-pre-wrap max-h-64 overflow-auto">{{ logs.join('\n') }}</pre>
+          <div class="text-sm text-green-700 whitespace-pre-wrap max-h-64 overflow-auto space-y-1 font-semibold">
+  <p v-for="(line, index) in logs" :key="index" class="leading-snug">
+    {{ line }}
+  </p>
+</div>
+
         </div>
       </div>
     </div>

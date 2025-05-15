@@ -69,7 +69,7 @@ def train_model_with_params(epochs=100, batch_size=32, learning_rate=0.001):
     if os.path.exists(ae_model_path):
         os.remove(ae_model_path)
     autoencoder.save(ae_model_path)
-    output_log.append(" Autoencoder model trained and saved.")
+    output_log.append(f" Autoencoder model trained for {len(history.history['loss'])} epochs (Final val loss: {history.history['val_loss'][-1]:.4f}) and saved.")
 
     # ---- Training Loss Plot ----
     plt.figure(figsize=(6, 4))
@@ -102,7 +102,7 @@ def train_model_with_params(epochs=100, batch_size=32, learning_rate=0.001):
     rf_binary.fit(X_train_rf1, y_train_rf1)
     with open(os.path.join(MODEL_DIR, 'rf_binary.pkl'), 'wb') as f:
         pickle.dump(rf_binary, f)
-    output_log.append(" Random Forest (binary) trained and saved.")
+    output_log.append(f" Random Forest (binary) trained with 100 trees (Accuracy: {rf_binary.score(X_train_rf1, y_train_rf1):.2%}) and saved.")
 
     # ---- RF2 ----
     df_rf2 = pd.read_csv(RF2_DATA_PATH)
@@ -117,7 +117,7 @@ def train_model_with_params(epochs=100, batch_size=32, learning_rate=0.001):
     rf_multi.fit(X_train_rf2, y_train_rf2)
     with open(os.path.join(MODEL_DIR, 'rf_multiclass.pkl'), 'wb') as f:
         pickle.dump(rf_multi, f)
-    output_log.append(" Random Forest (multi-class) trained and saved.")
+    output_log.append(f" Random Forest (multi-class) trained with 100 trees (Accuracy: {rf_multi.score(X_train_rf2, y_train_rf2):.2%}) and saved.")
 
     output_log.append(" All models trained and saved successfully.")
     return {

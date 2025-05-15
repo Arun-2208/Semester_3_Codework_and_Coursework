@@ -19,13 +19,13 @@
         </div>
       </div>
 
-      <!-- Bar Chart: Avg Detection Rate -->
+      <!-- Bar Chart -->
       <div class="bg-[#F6F2FF] rounded-xl shadow p-6 w-full mb-8">
         <h2 class="text-[#4F378A] font-medium text-lg mb-4 text-center">Avg Detection Rate per Malware Type</h2>
         <canvas id="barChart" class="w-full h-60"></canvas>
       </div>
 
-      <!-- Pie Chart: Malware Distribution -->
+      <!-- Pie Chart -->
       <div class="bg-[#F6F2FF] rounded-xl shadow p-6 w-full mb-8">
         <h2 class="text-[#4F378A] font-medium text-lg mb-4 text-center">Malware Type Distribution</h2>
         <canvas id="pieChart" class="w-full h-60"></canvas>
@@ -33,6 +33,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -72,6 +73,7 @@ export default {
       if (key.includes('ransom')) return '#ef4444'; // red
       if (key.includes('trojan')) return '#f97316'; // orange
       if (key.includes('spy')) return '#ec4899';    // pink
+      if (key.includes('benign')) return '#10b981'; // green
       return '#7c3aed';                             // fallback purple
     },
     renderBarChart() {
@@ -94,6 +96,9 @@ export default {
         },
         options: {
           responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
           scales: {
             y: {
               beginAtZero: true,
@@ -119,14 +124,16 @@ export default {
           }]
         },
         options: {
-          responsive: true
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
         }
       });
     }
   }
 };
 </script>
-
 
 <style scoped>
 canvas {

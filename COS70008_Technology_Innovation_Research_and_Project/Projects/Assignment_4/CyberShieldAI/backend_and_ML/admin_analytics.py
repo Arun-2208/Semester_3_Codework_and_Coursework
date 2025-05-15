@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify
 from database import SessionLocal, ScanHistory
-from sqlalchemy import func
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict, Counter
 
 admin_analytics_bp = Blueprint("admin_analytics", __name__)
@@ -12,19 +11,15 @@ def get_admin_analytics():
     try:
         scans = db.query(ScanHistory).all()
 
-        # Totals by time unit
-        now = datetime.utcnow()
         daily_counts = defaultdict(int)
         weekly_counts = defaultdict(int)
         monthly_counts = defaultdict(int)
 
         malware_counter = Counter()
-        detection_sums = defaultdict(list)  # malware_type: [1, 1, 0]
+        accuracy_totals = defaultdict(list)
 
         for scan in scans:
             ts = scan.scan_timestamp
-
-            # Time-based buckets
             day = ts.strftime("%Y-%m-%d")
             week = ts.strftime("%Y-W%U")
             month = ts.strftime("%Y-%m")
@@ -33,28 +28,35 @@ def get_admin_analytics():
             weekly_counts[week] += 1
             monthly_counts[month] += 1
 
-            # Each result/malware type
-            for i in range(1, 4):
+            for i in range(1, 3 + 1):
                 result = getattr(scan, f"result_{i}")
                 mtype = getattr(scan, f"malware_type_{i}")
+                acc = getattr(scan, f"accuracy_{i}")
 
-                if result and result.lower() == "malware" and mtype and mtype.lower() != "n/a":
-                    malware_counter[mtype] += 1
-                    detection_sums[mtype].append(1)
-                elif mtype and mtype.lower() != "n/a":
-                    detection_sums[mtype].append(0)
+                label = mtype if (mtype and mtype.lower() != 'n/a') else 'Benign'
 
-        # Detection rate per type (%)
+                # Malware distribution
+                if result and result.lower() == "malware" and label.lower() != "benign":
+                    malware_counter[label] += 1
+                elif result and result.lower() == "benign":
+                    malware_counter['Benign'] += 1
+
+                # Accuracy stats (for all types including Benign)
+                try:
+                    acc_val = float(acc)
+                    if 0 <= acc_val <= 1:
+                        accuracy_totals[label].append(acc_val * 100)
+                except:
+                    continue
+
         avg_detection_rate = {
-            mtype: round(100 * sum(vals) / len(vals), 2)
-            for mtype, vals in detection_sums.items()
-            if len(vals) > 0
+            mtype: round(sum(vals) / len(vals), 2)
+            for mtype, vals in accuracy_totals.items() if vals
         }
 
-        # Malware type distribution (% of total detections)
-        total_detections = sum(malware_counter.values())
+        total_detected = sum(malware_counter.values())
         malware_distribution = {
-            mtype: round(100 * count / total_detections, 2)
+            mtype: round(100 * count / total_detected, 2)
             for mtype, count in malware_counter.items()
         }
 
