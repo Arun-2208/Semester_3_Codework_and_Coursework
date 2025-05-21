@@ -57,12 +57,12 @@
         </div>
 
   
-        <!-- About Us Button -->
+        <!-- Register button -->
         <router-link
-          to="/about"
+          to="/register"
           class="absolute top-6 right-6 px-6 py-2 rounded-full bg-[#F0EFFF] text-[#4F378A] shadow-sm hover:underline text-lg"
         >
-          About us
+          Don't have an account ? Register 
         </router-link>
       </div>
     </div>

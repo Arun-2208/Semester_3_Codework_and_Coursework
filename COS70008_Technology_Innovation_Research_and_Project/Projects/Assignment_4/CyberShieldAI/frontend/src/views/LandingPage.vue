@@ -39,13 +39,7 @@
           </div>
         </div>
   
-        <!-- About Us Button -->
-        <router-link
-          to="/about"
-          class="absolute top-6 right-6 px-6 py-2 rounded-full bg-[#F0EFFF] text-[#4F378A] shadow-sm hover:underline text-lg"
-        >
-          About us
-        </router-link>
+       
       </div>
     </div>
   </template>
