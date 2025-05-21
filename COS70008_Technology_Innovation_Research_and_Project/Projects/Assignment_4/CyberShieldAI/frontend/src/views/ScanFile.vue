@@ -162,12 +162,24 @@ export default {
         alert('Scan failed. Please check the file and format.');
       }
     },
-    async downloadPdf(scan_id) {
-      console.log('Downloading PDF for scan:', scan_id);
+           async downloadPdf() {
       try {
-        const res = await axios.get(`http://localhost:5000/scan-details/${scan_id}`);
-        const scan = res.data;
         const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        // Step 1: Fetch scan history and get the latest scan_id
+        const historyRes = await axios.get(`http://localhost:5000/scan-history?user_id=${user.user_id}`);
+        const scans = historyRes.data;
+        if (!scans.length) {
+          alert("No scans found for this user.");
+          return;
+        }
+
+        const latestScanId = scans[0].scan_id;
+
+        // Step 2: Fetch scan details using latest scan_id
+        const res = await axios.get(`http://localhost:5000/scan-details/${latestScanId}`);
+        const scan = res.data;
+
         const formatPercent = (value) => (value && value !== '--' && !isNaN(value)) ? `${Math.round(parseFloat(value) * 100)}%` : '--';
 
         const results = [
@@ -236,8 +248,11 @@ export default {
         doc.save(`scan_${scan.scan_id}.pdf`);
       } catch (err) {
         console.error('Error downloading report:', err);
+        alert("Failed to download report. Please try again.");
       }
     }
+
+
   }
 };
 </script>
